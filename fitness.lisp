@@ -17,3 +17,10 @@
                               primitive-alist
                               operator-list
                               (- max-tree-depth 1)))))))
+
+(defun evaluate-population (population)
+  (mapcar #'eval population)
+
+(defun generate-population (primitives operators max-tree-depth &optional (member-count 1000))
+  (loop for args upto (- member-count 1)
+        collect (generate-program-tree primitives operators max-tree-depth)))
