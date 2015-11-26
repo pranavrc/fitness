@@ -24,7 +24,7 @@
 
 (defmacro evaluate-tree (tree args repeat)
   (if (> repeat 0)
-    (macrolet ((program (args) `,(list 'lambda '(&rest args) tree)))
+    (macrolet ((program () `,(list 'lambda '(&rest args) tree)))
       (let ((result (funcall (program) args)))
         (cons result (evaluate-tree tree result (- repeat 1)))))
     nil))
