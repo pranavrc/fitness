@@ -32,3 +32,6 @@
 (defun evaluate-population (population args repeat &optional (repeat 50))
   (mapcar #'(lambda (tree) (evaluate-tree tree args repeat)) population))
 
+(defun generation-fitness (population results fitness-function)
+  (pairlis population
+           (mapcar #'(lambda (result) (fitness-function result)) results)))
