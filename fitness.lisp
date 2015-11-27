@@ -30,8 +30,23 @@
     nil))
 
 (defun evaluate-population (population args repeat &optional (repeat 50))
-  (mapcar #'(lambda (tree) (evaluate-tree tree args repeat)) population))
+  (mapcar #'(lambda (tree) (cons tree (evaluate-tree tree args repeat))) population))
 
 (defun generation-fitness (population results fitness-function)
   (pairlis population
            (mapcar #'(lambda (result) (fitness-function result)) results)))
+
+(defun get-min-max (alist predicate key)
+  (when list
+    (let* ((m0 (first list))
+           (m1 (funcall key m0)))
+      (mapc (lambda (e0 &aux (e1 (funcall key e0)))
+              (when (funcall predicate e1 m1)
+                (psetf m0 e0 m1 e1)))
+            list)
+      m0)))
+
+(defun tournament-selection (fitness-alist selection-count random-count)
+  (loop for count upto selection-count collect
+        (get-min-max (loop for rand-count upto random-count collect
+                           pick-random fitness-alist) #'> #'second)))
