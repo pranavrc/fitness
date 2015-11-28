@@ -57,7 +57,15 @@
           ((> toss 50) nil)
           (t 'edge))))
 
-(defun pick-random-subtree (tree) ())
+(defun pick-random-subtree (tree &optional (acc '()))
+  (if (fair-coin)
+    (let* ((pick-number (random (length (cdr tree))))
+           (pick (nth (+ 1 pick) tree))
+           (append acc (list pick-number)))
+      (pick-random-subtree pick acc))
+    (list :acc acc :subtree tree)))
 
-(defun crossover (mother father) ())
+(defun crossover (mother father)
+  (let ((mother-st (pick-random-subtree mother))
+        (father-st (pick-random-subtree father)))))
 
