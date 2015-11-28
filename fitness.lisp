@@ -50,3 +50,14 @@
   (loop for count upto selection-count collect
         (get-min-max (loop for rand-count upto random-count collect
                            pick-random fitness-alist) #'> #'second)))
+
+(defun fair-coin ()
+  (let ((toss (random 101)))
+    (cond ((< toss 50) t)
+          ((> toss 50) nil)
+          (t 'edge))))
+
+(defun pick-random-subtree (tree) ())
+
+(defun crossover (mother father) ())
+
