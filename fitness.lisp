@@ -68,7 +68,7 @@
         (if (fair-coin)
           (pick-random-subtree pick replacement)
           pick))
-      tree))
+      tree)))
 
 (defun crossover (mother father)
   (let ((mother-st (pick-random-subtree mother))
