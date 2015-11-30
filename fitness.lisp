@@ -29,12 +29,13 @@
         (cons result (evaluate-tree tree result (- repeat-var 1)))))
     nil))
 
-(defun evaluate-population (population args &optional (repeat-var 50))
+(defun evaluate-population (population args repeat-var)
   (mapcar #'(lambda (tree) (cons tree (evaluate-tree tree args repeat-var))) population))
 
-(defun generation-fitness (population results fitness-function)
+(defun generation-fitness (population args fitness-function &optional (repeat-var 50))
   (pairlis population
-           (mapcar #'(lambda (result) (fitness-function result)) results)))
+           (mapcar #'(lambda (result) (fitness-function result))
+                   (evaluate-population population args repeat-var))))
 
 (defun get-min-max (alist predicate key)
   (when list
@@ -76,13 +77,13 @@
         (mother-st (pick-random-subtree mother father)))
     mother-st))
 
-(defun copy-population (population percentage program-count)
-  (loop for s-count upto (* (length population) (/ percentage 100)) collect
-        (tournament-selection population program-count)))
+(defun copy-population (fitness-alist &optional (percentage 10) (program-count 7))
+  (loop for s-count upto (* (length fitness-alist) (/ percentage 100)) collect
+        (tournament-selection fitness-alist program-count)))
 
-(defun crossover-population (population percentage program-count)
-  (loop for s-count upto (* (length population) (/ percentage 100)) collect
-        (let ((mother (tournament-selection population program-count))
-              (father (tournament-selection population program-count)))
+(defun crossover-population (fitness-alist &optional (percentage 10) (program-count 7))
+  (loop for s-count upto (* (length fitness-alist) (/ percentage 100)) collect
+        (let ((mother (tournament-selection fitness-alist program-count))
+              (father (tournament-selection fitness-alist program-count)))
           (crossover mother father))))
 
