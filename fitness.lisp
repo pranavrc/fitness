@@ -48,8 +48,8 @@
       m0)))
 
 (defun tournament-selection (fitness-alist program-count)
-  (get-min-max (loop for r-count upto program-count collect
-                     (pick-random fitness-alist)) #'> #'second))
+  (mapcar #'car (get-min-max (loop for r-count upto program-count collect
+                                   (pick-random fitness-alist)) #'> #'second)))
 
 (defun fair-coin (chance)
   (let ((toss (random 101)))
@@ -58,7 +58,7 @@
           (t 'edge))))
 
 (defun is-tree (tree)
-  (remove-if-not #'(lambda (el) (typep el 'list)) tree))
+  (every #'(lambda (el) (typep el 'list)) tree))
 
 (defun pick-random-subtree (tree &optional (replacement nil))
   (let ((branches (cdr tree)))
@@ -86,4 +86,20 @@
         (let ((mother (tournament-selection fitness-alist program-count))
               (father (tournament-selection fitness-alist program-count)))
           (crossover mother father))))
+
+(defun evolve (primitives operators args fitness-function fitness-p &optional
+                          (max-tree-depth 5) (member-count 1000) (repeat-var 10)
+                          (percentage 10) (program-count 7) (generation nil))
+  (let* ((population
+           (if generation
+             generation
+             (generate-population primitives operators max-tree-depth member-count)))
+         (population-fitness (generation-fitness population args fitness-function repeat-var))
+         (passes (remove-if-not #'(lambda (x) (fitness-p (cadr x))) population-fitness)))
+    (if passes
+      passes
+      (evolve primitives operators args fitness-function fitness-p
+              max-tree-depth member-count repeat-var percentage program-count
+              (append (copy-population population-fitness percentage program-count)
+              (crossover-population population-fitness percentage program-count))))))
 
