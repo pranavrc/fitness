@@ -22,15 +22,15 @@
   (loop for args upto (- member-count 1)
         collect (generate-program-tree primitives operators max-tree-depth)))
 
-(defmacro evaluate-tree (tree args repeat)
-  (if (> repeat 0)
-    (macrolet ((program () `,(list 'lambda '(&rest args) tree)))
-      (let ((result (funcall (program) args)))
-        (cons result (evaluate-tree tree result (- repeat 1)))))
+(defun evaluate-tree (tree args repeat-var)
+  (if (> repeat-var 0)
+    (macrolet ((program (code) `(eval (list 'lambda '(&rest args) ,code))))
+      (let ((result (funcall (program tree) args)))
+        (cons result (evaluate-tree tree result (- repeat-var 1)))))
     nil))
 
-(defun evaluate-population (population args repeat &optional (repeat 50))
-  (mapcar #'(lambda (tree) (cons tree (evaluate-tree tree args repeat))) population))
+(defun evaluate-population (population args &optional (repeat-var 50))
+  (mapcar #'(lambda (tree) (cons tree (evaluate-tree tree args repeat-var))) population))
 
 (defun generation-fitness (population results fitness-function)
   (pairlis population
@@ -48,7 +48,7 @@
 
 (defun tournament-selection (fitness-alist program-count)
   (get-min-max (loop for r-count upto program-count collect
-                     (pick-random fitness-alist) #'> #'second)))
+                     (pick-random fitness-alist)) #'> #'second))
 
 (defun fair-coin (chance)
   (let ((toss (random 101)))
