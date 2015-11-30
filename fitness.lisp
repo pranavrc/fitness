@@ -51,10 +51,10 @@
         (get-min-max (loop for rand-count upto random-count collect
                            pick-random fitness-alist) #'> #'second)))
 
-(defun fair-coin ()
+(defun fair-coin (chance)
   (let ((toss (random 101)))
-    (cond ((< toss 75) t)
-          ((> toss 75) nil)
+    (cond ((< toss chance) t)
+          ((> toss chance) nil)
           (t 'edge))))
 
 (defun is-tree (tree)
@@ -65,12 +65,15 @@
     (if (is-tree branches)
       (let* ((pick-number (random (length branches)))
              (pick (nth pick-number branches)))
-        (if (fair-coin)
-          (pick-random-subtree pick replacement)
+        (if (fair-coin 75)
+          (if replacement
+            (setf pick replacement)
+            (pick-random-subtree pick replacement))
           pick))
       tree)))
 
 (defun crossover (mother father)
-  (let ((mother-st (pick-random-subtree mother))
-        (father-st (pick-random-subtree father)))))
+  (let ((father-st (pick-random-subtree father))
+        (mother-st (pick-random-subtree mother father)))
+    mother-st))
 
