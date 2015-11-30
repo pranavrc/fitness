@@ -24,7 +24,7 @@
 
 (defun evaluate-tree (tree args repeat-var)
   (if (> repeat-var 0)
-    (macrolet ((program (code) `(eval (list 'lambda '(&rest args) ,code))))
+    (macrolet ((program (code) `(eval (list 'lambda args ,code))))
       (let ((result (funcall (program tree) args)))
         (cons result (evaluate-tree tree result (- repeat-var 1)))))
     nil))
