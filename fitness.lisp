@@ -46,10 +46,9 @@
             list)
       m0)))
 
-(defun tournament-selection (fitness-alist selection-count random-count)
-  (loop for count upto selection-count collect
-        (get-min-max (loop for rand-count upto random-count collect
-                           pick-random fitness-alist) #'> #'second)))
+(defun tournament-selection (fitness-alist program-count)
+  (get-min-max (loop for r-count upto program-count collect
+                     (pick-random fitness-alist) #'> #'second)))
 
 (defun fair-coin (chance)
   (let ((toss (random 101)))
@@ -76,4 +75,14 @@
   (let ((father-st (pick-random-subtree father))
         (mother-st (pick-random-subtree mother father)))
     mother-st))
+
+(defun copy-population (population percentage program-count)
+  (loop for s-count upto (* (length population) (/ percentage 100)) collect
+        (tournament-selection population program-count)))
+
+(defun crossover-population (population percentage program-count)
+  (loop for s-count upto (* (length population) (/ percentage 100)) collect
+        (let ((mother (tournament-selection population program-count))
+              (father (tournament-selection population program-count)))
+          (crossover mother father))))
 
