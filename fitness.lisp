@@ -60,16 +60,37 @@
 (defun is-tree (tree)
   (every #'(lambda (el) (typep el 'list)) tree))
 
-(defun pick-random-subtree (tree &optional (replacement nil))
+(defun pick-random-subtree (tree
+                             &optional (replacement nil) (orig tree) (acc '()))
   (let ((branches (cdr tree)))
     (if (is-tree branches)
       (let* ((pick-number (random (length branches)))
+             (acc (append acc (list pick-number)))
              (pick (nth pick-number branches)))
         (if (fair-coin 75)
+          (pick-random-subtree pick replacement orig acc)
           (if replacement
-            (setf pick replacement)
-            (pick-random-subtree pick replacement))
-          pick))
+            (replace-subtree orig nth-list replacement)
+            pick)))
+      (if replacement
+        (replace-subtree orig nth-list replacement)
+        tree))))
+
+(defun recursive-nth (tree nth-list)
+  (let ((target (nth (car nth-list) tree)))
+    (if target
+      (if (<= (length nth-list) 1)
+        (list 'nth (car nth-list) (quote tree))
+        (list 'nth (car nth-list)
+              (recursive-nth tree (cdr nth-list))))
+      (quote tree))))
+
+(defun replace-subtree (tree nth-list replacement)
+  (macrolet
+    ((macro-nth (atree list-nth)
+                `(eval (list 'lambda '(tree replacement)
+                             (list 'setf (recursive-nth ,atree ,list-nth) 'replacement)))))
+    (let ((setf-return (funcall (macro-nth tree nth-list) tree replacement)))
       tree)))
 
 (defun crossover (mother father)
