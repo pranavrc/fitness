@@ -39,7 +39,7 @@
     nil))
 
 (defun evaluate-population (population repeat-var args fargs)
-  (mapcar #'(lambda (tree) (cons tree (evaluate-tree repeat-var args fargs))) population))
+  (mapcar #'(lambda (tree) (cons tree (evaluate-tree tree repeat-var args fargs))) population))
 
 (defun generation-fitness (population args fargs fitness-function &optional (repeat-var 50))
   (pairlis population
@@ -117,18 +117,18 @@
               (father (tournament-selection fitness-alist program-count)))
           (crossover mother father))))
 
-(defun evolve (primitives actions conditionals args fitness-function fitness-p &optional
+(defun evolve (primitives actions conditionals args fargs fitness-function fitness-p &optional
                           (max-tree-depth 5) (member-count 1000) (repeat-var 10)
                           (percentage 10) (program-count 7) (generation nil))
   (let* ((population
            (if generation
              generation
              (generate-population primitives actions conditionals max-tree-depth member-count)))
-         (population-fitness (generation-fitness population args fitness-function repeat-var))
+         (population-fitness (generation-fitness population args fargs fitness-function repeat-var))
          (passes (remove-if-not #'(lambda (x) (fitness-p (cadr x))) population-fitness)))
     (if passes
       passes
-      (evolve primitives actions conditionals args fitness-function fitness-p
+      (evolve primitives actions conditionals args fargs fitness-function fitness-p
               max-tree-depth member-count repeat-var percentage program-count
               (append (copy-population population-fitness percentage program-count)
               (crossover-population population-fitness percentage program-count))))))

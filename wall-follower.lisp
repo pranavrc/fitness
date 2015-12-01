@@ -118,7 +118,7 @@
         (= (cdr cell) (- (cadr dimensions) 1)))))
 
 (defun new-cell-p (grid-world cell)
-  (not (= (aref grid-world (car cell) (cdr cell)) 1)))
+  (<= (aref grid-world (car cell) (cdr cell)) 1))
 
 (defun fitness-p (grid-world fitness)
   (let* ((dimensions (array-dimensions grid-world))
