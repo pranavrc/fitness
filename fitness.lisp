@@ -27,9 +27,9 @@
                                 conditional-list
                                 (- max-tree-depth 1))))))))
 
-(defun generate-population (primitives operators max-tree-depth &optional (member-count 1000))
+(defun generate-population (primitives actions conditionals max-tree-depth &optional (member-count 1000))
   (loop for args upto (- member-count 1)
-        collect (generate-program-tree primitives operators max-tree-depth)))
+        collect (generate-program-tree primitives actions conditionals max-tree-depth)))
 
 (defun evaluate-tree (tree args repeat-var)
   (if (> repeat-var 0)
@@ -117,18 +117,18 @@
               (father (tournament-selection fitness-alist program-count)))
           (crossover mother father))))
 
-(defun evolve (primitives operators args fitness-function fitness-p &optional
+(defun evolve (primitives actions conditionals args fitness-function fitness-p &optional
                           (max-tree-depth 5) (member-count 1000) (repeat-var 10)
                           (percentage 10) (program-count 7) (generation nil))
   (let* ((population
            (if generation
              generation
-             (generate-population primitives operators max-tree-depth member-count)))
+             (generate-population primitives actions conditionals max-tree-depth member-count)))
          (population-fitness (generation-fitness population args fitness-function repeat-var))
          (passes (remove-if-not #'(lambda (x) (fitness-p (cadr x))) population-fitness)))
     (if passes
       passes
-      (evolve primitives operators args fitness-function fitness-p
+      (evolve primitives actions conditionals args fitness-function fitness-p
               max-tree-depth member-count repeat-var percentage program-count
               (append (copy-population population-fitness percentage program-count)
               (crossover-population population-fitness percentage program-count))))))
