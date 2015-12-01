@@ -31,20 +31,20 @@
   (loop for args upto (- member-count 1)
         collect (generate-program-tree primitives actions conditionals max-tree-depth)))
 
-(defun evaluate-tree (tree args repeat-var)
+(defun evaluate-tree (tree repeat-var args fargs)
   (if (> repeat-var 0)
     (macrolet ((program (code) `(eval (list 'lambda args ,code))))
-      (let ((result (funcall (program tree) args)))
-        (cons result (evaluate-tree tree result (- repeat-var 1)))))
+      (let ((result (apply (program tree) fargs)))
+        (cons result (evaluate-tree tree (- repeat-var 1) args result))))
     nil))
 
-(defun evaluate-population (population args repeat-var)
-  (mapcar #'(lambda (tree) (cons tree (evaluate-tree tree args repeat-var))) population))
+(defun evaluate-population (population repeat-var args fargs)
+  (mapcar #'(lambda (tree) (cons tree (evaluate-tree repeat-var args fargs))) population))
 
-(defun generation-fitness (population args fitness-function &optional (repeat-var 50))
+(defun generation-fitness (population args fargs fitness-function &optional (repeat-var 50))
   (pairlis population
            (mapcar #'(lambda (result) (fitness-function result))
-                   (evaluate-population population args repeat-var))))
+                   (evaluate-population population repeat-var args fargs))))
 
 (defun get-min-max (alist predicate key)
   (when list
