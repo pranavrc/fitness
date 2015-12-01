@@ -110,3 +110,15 @@
                      (se-sensor grid-world current-cell)
                      (sw-sensor grid-world current-cell)))
 
+(defun cell-wall-p (grid-world cell)
+  (let ((dimensions (array-dimensions grid-world)))
+    (or (= (car cell) 0)
+        (= (cdr cell) 0)
+        (= (car cell) (- (car dimensions) 1))
+        (= (cdr cell) (- (cadr dimensions) 1)))))
+
+(defun fitness-p (fitness grid-world)
+  (let* ((dimensions (array-dimensions grid-world))
+         (wall-cells (+ (* 2 (car dimensions)) (* 2 (- 2 (cadr dimensions))))))
+    (>= fitness wall-cells)))
+
