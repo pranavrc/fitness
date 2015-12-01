@@ -92,13 +92,17 @@
 
 (setf grid-world (make-grid-world '(5 5)))
 
-(setf current-cell (current-cell 2 2))
+(setf current-cell (list (current-cell 2 2)
+                         (current-cell 0 0)
+                         (current-cell 4 4)
+                         (current-cell 0 4)
+                         (current-cell 4 0)))
 
 (setf primitives '((if 3) (and 2) (or 2) (not 1)))
 
 (setf args '(grid-world current-cell))
 
-(setf fargs (list grid-world current-cell))
+(setf fargs (mapcar #'(lambda (x) (list grid-world x)) current-cell))
 
 (setf actions '((n grid-world current-cell)
                 (w grid-world current-cell)
