@@ -82,3 +82,23 @@
 (defun sw-sensor (grid-world current-cell)
   (and (s-sensor grid-world current-cell) (w-sensor grid-world current-cell)))
 
+(setf primitives '((if 3) (and 2) (or 2) (not 1)))
+
+(setf actions '((n grid-world current-cell)
+                (w grid-world current-cell)
+                (e grid-world current-cell)
+                (s grid-world current-cell)))
+;               (ne grid-world current-cell)
+;               (nw grid-world current-cell)
+;               (se grid-world current-cell)
+;               (sw grid-world current-cell)))
+
+(setf conditionals '((n-sensor grid-world current-cell)
+                     (w-sensor grid-world current-cell)
+                     (e-sensor grid-world current-cell)
+                     (s-sensor grid-world current-cell)
+                     (ne-sensor grid-world current-cell)
+                     (nw-sensor grid-world current-cell)
+                     (se-sensor grid-world current-cell)
+                     (sw-sensor grid-world current-cell)))
+
