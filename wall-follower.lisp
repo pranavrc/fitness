@@ -137,7 +137,7 @@
          (wall-cells (+ (* 2 (car dimensions)) (* 2 (- 2 (cadr dimensions))))))
     (>= fitness wall-cells)))
 
-(defun fitness-function (results)
+(defun fitness-helper (results)
   (if (typep results 'list)
     (let ((hashset (make-hash-table :test 'equal)))
       (loop for result in results
@@ -149,4 +149,7 @@
             into fitness
             finally (return fitness)))
     0))
+
+(defun fitness-function (results)
+  (apply #'+ (mapcar #'fitness-helper results)))
 

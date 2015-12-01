@@ -43,10 +43,9 @@
 (defun evaluate-population (population repeat-var args fargs)
   (mapcar #'(lambda (tree)
               (list tree
-                    (apply #'append
-                           (mapcar #'(lambda (farg)
-                                       (evaluate-tree tree repeat-var args farg))
-                                   fargs)))) population))
+                    (mapcar #'(lambda (farg)
+                                (evaluate-tree tree repeat-var args farg))
+                            fargs))) population))
 
 (defun generation-fitness (population args fargs fitness-function &optional (repeat-var 50))
   (pairlis population
