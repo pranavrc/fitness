@@ -90,6 +90,10 @@
 (defun sw-sensor (grid-world current-cell)
   (and (s-sensor grid-world current-cell) (w-sensor grid-world current-cell)))
 
+(setf grid-world (make-grid-world '(5 5)))
+
+(setf current-cell (current-cell 2 2))
+
 (setf primitives '((if 3) (and 2) (or 2) (not 1)))
 
 (setf actions '((n grid-world current-cell)
@@ -117,19 +121,24 @@
         (= (car cell) (- (car dimensions) 1))
         (= (cdr cell) (- (cadr dimensions) 1)))))
 
-(defun new-cell-p (grid-world cell)
-  (<= (aref grid-world (car cell) (cdr cell)) 1))
+(defun new-cell-p (hashset cell)
+  (not (gethash (write-to-string cell) hashset)))
 
-(defun fitness-p (grid-world fitness)
-  (let* ((dimensions (array-dimensions grid-world))
+(defun fitness-p (fitness)
+  (let* ((dimensions '(5 5))
          (wall-cells (+ (* 2 (car dimensions)) (* 2 (- 2 (cadr dimensions))))))
     (>= fitness wall-cells)))
 
 (defun fitness-function (results)
-  (loop for result in results
-        counting #'(lambda (result)
-                     (if (and (new-cell-p (car result) (cadr result))
-                              (wall-cell-p (car result) (cadr result)))))
-        into fitness
-        finally (return fitness)))
+  (if (typep results 'list)
+    (let ((hashset (make-hash-table :test 'equal)))
+      (loop for result in results
+            while (new-cell-p hashset (cadr result))
+            do (setf (gethash (write-to-string (cadr result)) hashset) t)
+            counting #'(lambda (result)
+                         (if (and (new-cell-p (car result) (cadr result))
+                                  (wall-cell-p (car result) (cadr result)))))
+            into fitness
+            finally (return fitness)))
+    0))
 
