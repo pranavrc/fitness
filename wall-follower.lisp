@@ -110,15 +110,26 @@
                      (se-sensor grid-world current-cell)
                      (sw-sensor grid-world current-cell)))
 
-(defun cell-wall-p (grid-world cell)
+(defun wall-cell-p (grid-world cell)
   (let ((dimensions (array-dimensions grid-world)))
     (or (= (car cell) 0)
         (= (cdr cell) 0)
         (= (car cell) (- (car dimensions) 1))
         (= (cdr cell) (- (cadr dimensions) 1)))))
 
-(defun fitness-p (fitness grid-world)
+(defun new-cell-p (grid-world cell)
+  (not (= (aref grid-world (car cell) (cdr cell)) 1)))
+
+(defun fitness-p (grid-world fitness)
   (let* ((dimensions (array-dimensions grid-world))
          (wall-cells (+ (* 2 (car dimensions)) (* 2 (- 2 (cadr dimensions))))))
     (>= fitness wall-cells)))
+
+(defun fitness-function (results)
+  (loop for result in results
+        counting #'(lambda (result)
+                     (if (and (new-cell-p (car result) (cadr result))
+                              (wall-cell-p (car result) (cadr result)))))
+        into fitness
+        finally (return fitness)))
 
