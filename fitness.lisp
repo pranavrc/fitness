@@ -41,7 +41,12 @@
     nil))
 
 (defun evaluate-population (population repeat-var args fargs)
-  (mapcar #'(lambda (tree) (list tree (evaluate-tree tree repeat-var args fargs))) population))
+  (mapcar #'(lambda (tree)
+              (list tree
+                    (apply #'append
+                           (mapcar #'(lambda (farg)
+                                       (evaluate-tree tree repeat-var args farg))
+                                   fargs)))) population))
 
 (defun generation-fitness (population args fargs fitness-function &optional (repeat-var 50))
   (pairlis population
@@ -120,17 +125,22 @@
 
 (defun evolve (primitives actions conditionals args fargs fitness-function fitness-p &optional
                           (max-tree-depth 5) (member-count 1000) (repeat-var 10)
-                          (percentage 10) (program-count 7) (generation nil))
+                          (percentage 10) (program-count 7)
+                          &key (generation nil) (max-run-count 10))
   (let* ((population
            (if generation
              generation
              (generate-population primitives actions conditionals max-tree-depth member-count)))
          (population-fitness (generation-fitness population args fargs fitness-function repeat-var))
          (passes (remove-if-not #'(lambda (x) (fitness-p (cdr x))) population-fitness)))
-    (if passes
-      passes
-      (evolve primitives actions conditionals args fargs fitness-function fitness-p
-              max-tree-depth member-count repeat-var percentage program-count
-              (append (copy-population population-fitness percentage program-count)
-              (crossover-population population-fitness percentage program-count))))))
+    (if (> max-run-count 0)
+      (if passes
+        passes
+        (evolve primitives actions conditionals args fargs fitness-function fitness-p
+                max-tree-depth member-count repeat-var percentage program-count
+                :generation
+                (append (copy-population population-fitness percentage program-count)
+                        (crossover-population population-fitness percentage program-count))
+                :max-run-count (- max-run-count 1)))
+      population-fitness)))
 
