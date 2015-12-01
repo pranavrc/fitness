@@ -27,7 +27,7 @@
                                 conditional-list
                                 (- max-tree-depth 1))))))))
 
-(defun generate-population (primitives actions conditionals max-tree-depth &optional (member-count 1000))
+(defun generate-population (primitives actions conditionals max-tree-depth member-count)
   (loop for args upto (- member-count 1)
         collect (generate-program-tree primitives actions conditionals max-tree-depth)))
 
@@ -41,11 +41,11 @@
     nil))
 
 (defun evaluate-population (population repeat-var args fargs)
-  (mapcar #'(lambda (tree) (cons tree (evaluate-tree tree repeat-var args fargs))) population))
+  (mapcar #'(lambda (tree) (list tree (evaluate-tree tree repeat-var args fargs))) population))
 
 (defun generation-fitness (population args fargs fitness-function &optional (repeat-var 50))
   (pairlis population
-           (mapcar #'(lambda (result) (fitness-function result))
+           (mapcar #'(lambda (result) (fitness-function (cadr result)))
                    (evaluate-population population repeat-var args fargs))))
 
 (defun get-min-max (alist predicate key)
@@ -76,13 +76,12 @@
   (let ((branches (cdr tree)))
     (if (is-tree branches)
       (let* ((pick-number (random (length branches)))
-             (acc (append acc (+ 1 list pick-number)))
+             (acc (append acc (list (+ 1 pick-number))))
              (pick (nth pick-number branches)))
         (if (fair-coin 75)
           (pick-random-subtree pick replacement acc)
           (if replacement acc pick)))
-      (if replacement (if acc
-                        acc (list (+ 1 (random (length branches))))) tree))))
+      (if replacement acc tree))))
 
 (defun recursive-nth (tree nth-list)
   (let ((target (nth (car nth-list) tree)))
@@ -94,18 +93,18 @@
       (quote tree))))
 
 (defun replace-subtree (tree nth-list replacement)
-  (if nth-list
+  (if (and (is-tree (cdr tree)) nth-list replacement)
     (macrolet
       ((macro-nth (atree list-nth)
                   `(eval (list 'lambda '(tree replacement)
                                (list 'setf (recursive-nth ,atree ,list-nth) 'replacement)))))
-      (let ((setf-return (funcall (macro-nth tree nth-list) tree replacement)))
+      (let ((setf-return (funcall (macro-nth tree (reverse nth-list)) tree replacement)))
         tree))
     tree))
 
 (defun crossover (mother father)
   (let* ((father-st (pick-random-subtree father))
-         (mother-st-acc (pick-random-subtree mother father))
+         (mother-st-acc (pick-random-subtree mother father-st))
          (mother-st (replace-subtree mother mother-st-acc father-st)))
     mother-st))
 
@@ -113,7 +112,7 @@
   (loop for s-count upto (* (length fitness-alist) (/ percentage 100)) collect
         (tournament-selection fitness-alist program-count)))
 
-(defun crossover-population (fitness-alist &optional (percentage 10) (program-count 7))
+(defun crossover-population (fitness-alist &optional (percentage 90) (program-count 7))
   (loop for s-count upto (* (length fitness-alist) (/ percentage 100)) collect
         (let ((mother (tournament-selection fitness-alist program-count))
               (father (tournament-selection fitness-alist program-count)))
