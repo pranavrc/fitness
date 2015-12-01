@@ -96,6 +96,10 @@
 
 (setf primitives '((if 3) (and 2) (or 2) (not 1)))
 
+(setf args '(grid-world current-cell))
+
+(setf fargs (list grid-world current-cell))
+
 (setf actions '((n grid-world current-cell)
                 (w grid-world current-cell)
                 (e grid-world current-cell)
