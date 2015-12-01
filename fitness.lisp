@@ -7,20 +7,24 @@
 (defun pick-random (inlist)
   (nth (random (length inlist)) inlist))
 
-(defun generate-program-tree (primitive-alist operator-list max-tree-depth)
-  (let* ((toss (fair-coin 75))
+(defun generate-program-tree (primitive-alist action-list conditional-list max-tree-depth)
+  (let* ((toss (fair-coin 50))
+         (toss2 (fair-coin 50))
          (pick (if toss
-                 (pick-random primitive-alist)
-                 (pick-random operator-list))))
-    (if (not toss)
+                 (if toss2
+                   (pick-random conditional-list)
+                   (pick-random action-list))
+                 (pick-random primitive-alist))))
+    (if toss
       pick
       (if (<= max-tree-depth 0)
-        (pick-random operator-list)
+        (pick-random conditional-list)
         (append (list (car pick))
                 (loop for args upto (- (cadr pick) 1)
                       collect (generate-program-tree
                                 primitive-alist
-                                operator-list
+                                action-list
+                                conditional-list
                                 (- max-tree-depth 1))))))))
 
 (defun generate-population (primitives operators max-tree-depth &optional (member-count 1000))
