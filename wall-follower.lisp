@@ -58,3 +58,27 @@
       (cons new-x new-y)
       current-cell)))
 
+(defun n-sensor (grid-world current-cell)
+  (= (car current-cell) 0))
+
+(defun s-sensor (grid-world current-cell)
+  (= (car current-cell) (- (car (array-dimensions grid-world)) 1)))
+
+(defun e-sensor (grid-world current-cell)
+  (= (cdr current-cell) (- (cadr (array-dimensions grid-world)) 1)))
+
+(defun w-sensor (grid-world current-cell)
+  (= (cdr current-cell) 0))
+
+(defun ne-sensor (grid-world current-cell)
+  (and (n-sensor grid-world current-cell) (e-sensor grid-world current-cell)))
+
+(defun nw-sensor (grid-world current-cell)
+  (and (n-sensor grid-world current-cell) (w-sensor grid-world current-cell)))
+
+(defun se-sensor (grid-world current-cell)
+  (and (s-sensor grid-world current-cell) (e-sensor grid-world current-cell)))
+
+(defun sw-sensor (grid-world current-cell)
+  (and (s-sensor grid-world current-cell) (w-sensor grid-world current-cell)))
+
