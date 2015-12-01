@@ -35,7 +35,9 @@
   (if (> repeat-var 0)
     (macrolet ((program (code) `(eval (list 'lambda args ,code))))
       (let ((result (apply (program tree) fargs)))
-        (cons result (evaluate-tree tree (- repeat-var 1) args result))))
+        (if (and result (equal (type-of result) (type-of fargs)))
+          (cons result (evaluate-tree tree (- repeat-var 1) args result))
+          (list fargs))))
     nil))
 
 (defun evaluate-population (population repeat-var args fargs)
@@ -47,18 +49,18 @@
                    (evaluate-population population repeat-var args fargs))))
 
 (defun get-min-max (alist predicate key)
-  (when list
-    (let* ((m0 (first list))
+  (when alist
+    (let* ((m0 (first alist))
            (m1 (funcall key m0)))
       (mapc (lambda (e0 &aux (e1 (funcall key e0)))
               (when (funcall predicate e1 m1)
                 (psetf m0 e0 m1 e1)))
-            list)
+            alist)
       m0)))
 
 (defun tournament-selection (fitness-alist program-count)
-  (mapcar #'car (get-min-max (loop for r-count upto program-count collect
-                                   (pick-random fitness-alist)) #'> #'second)))
+  (car (get-min-max (loop for r-count upto (- program-count 1) collect
+                          (pick-random fitness-alist)) #'> #'cdr)))
 
 (defun fair-coin (chance)
   (let ((toss (random 101)))
@@ -70,20 +72,17 @@
   (every #'(lambda (el) (typep el 'list)) tree))
 
 (defun pick-random-subtree (tree
-                             &optional (replacement nil) (orig tree) (acc '()))
+                             &optional (replacement nil) (acc '()))
   (let ((branches (cdr tree)))
     (if (is-tree branches)
       (let* ((pick-number (random (length branches)))
-             (acc (append acc (list pick-number)))
+             (acc (append acc (+ 1 list pick-number)))
              (pick (nth pick-number branches)))
         (if (fair-coin 75)
-          (pick-random-subtree pick replacement orig acc)
-          (if replacement
-            (replace-subtree orig nth-list replacement)
-            pick)))
-      (if replacement
-        (replace-subtree orig nth-list replacement)
-        tree))))
+          (pick-random-subtree pick replacement acc)
+          (if replacement acc pick)))
+      (if replacement (if acc
+                        acc (list (+ 1 (random (length branches))))) tree))))
 
 (defun recursive-nth (tree nth-list)
   (let ((target (nth (car nth-list) tree)))
@@ -95,16 +94,19 @@
       (quote tree))))
 
 (defun replace-subtree (tree nth-list replacement)
-  (macrolet
-    ((macro-nth (atree list-nth)
-                `(eval (list 'lambda '(tree replacement)
-                             (list 'setf (recursive-nth ,atree ,list-nth) 'replacement)))))
-    (let ((setf-return (funcall (macro-nth tree nth-list) tree replacement)))
-      tree)))
+  (if nth-list
+    (macrolet
+      ((macro-nth (atree list-nth)
+                  `(eval (list 'lambda '(tree replacement)
+                               (list 'setf (recursive-nth ,atree ,list-nth) 'replacement)))))
+      (let ((setf-return (funcall (macro-nth tree nth-list) tree replacement)))
+        tree))
+    tree))
 
 (defun crossover (mother father)
-  (let ((father-st (pick-random-subtree father))
-        (mother-st (pick-random-subtree mother father)))
+  (let* ((father-st (pick-random-subtree father))
+         (mother-st-acc (pick-random-subtree mother father))
+         (mother-st (replace-subtree mother mother-st-acc father-st)))
     mother-st))
 
 (defun copy-population (fitness-alist &optional (percentage 10) (program-count 7))
@@ -125,7 +127,7 @@
              generation
              (generate-population primitives actions conditionals max-tree-depth member-count)))
          (population-fitness (generation-fitness population args fargs fitness-function repeat-var))
-         (passes (remove-if-not #'(lambda (x) (fitness-p (cadr x))) population-fitness)))
+         (passes (remove-if-not #'(lambda (x) (fitness-p (cdr x))) population-fitness)))
     (if passes
       passes
       (evolve primitives actions conditionals args fargs fitness-function fitness-p
