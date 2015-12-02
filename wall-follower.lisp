@@ -142,7 +142,7 @@
 (defun fitness-p (fitness)
   (let* ((dimensions dims)
          (wall-cells (+ (* 2 (car dimensions)) (* 2 (- (cadr dimensions) 2)))))
-    (>= fitness wall-cells)))
+    (>= fitness (* wall-cells (length current-cell)))))
 
 (defun fitness-helper (results)
   (if (typep results 'list)
