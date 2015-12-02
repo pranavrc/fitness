@@ -90,7 +90,9 @@
 (defun sw-sensor (grid-world current-cell)
   (and (s-sensor grid-world current-cell) (w-sensor grid-world current-cell)))
 
-(setf grid-world (make-grid-world '(5 5)))
+(setf dims '(10 10))
+
+(setf grid-world (make-grid-world dims))
 
 (setf current-cell (list (current-cell 2 2)
                          (current-cell 0 0)
@@ -133,8 +135,8 @@
   (not (gethash (write-to-string cell) hashset)))
 
 (defun fitness-p (fitness)
-  (let* ((dimensions '(5 5))
-         (wall-cells (+ (* 2 (car dimensions)) (* 2 (- 2 (cadr dimensions))))))
+  (let* ((dimensions dims)
+         (wall-cells (+ (* 2 (car dimensions)) (* 2 (- (cadr dimensions) 2)))))
     (>= fitness wall-cells)))
 
 (defun fitness-helper (results)
