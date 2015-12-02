@@ -123,7 +123,7 @@
           (crossover mother father))))
 
 (defun evolve (primitives actions conditionals args fargs fitness-function fitness-p &optional
-                          (max-tree-depth 5) (member-count 1000) (repeat-var 10)
+                          (max-tree-depth 5) (member-count 1000) (repeat-var 60)
                           (percentage 10) (program-count 7)
                           &key (generation nil) (max-run-count 10))
   (let* ((population
