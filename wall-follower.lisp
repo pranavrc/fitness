@@ -90,7 +90,7 @@
 (defun sw-sensor (grid-world current-cell)
   (and (s-sensor grid-world current-cell) (w-sensor grid-world current-cell)))
 
-(setf dims '(10 10))
+(setf dims '(5 5))
 
 (setf grid-world (make-grid-world dims))
 
