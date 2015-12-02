@@ -98,7 +98,12 @@
                          (current-cell 0 0)
                          (current-cell 4 4)
                          (current-cell 0 4)
-                         (current-cell 4 0)))
+                         (current-cell 4 0)
+                         (current-cell 1 1)
+                         (current-cell 3 3)
+                         (current-cell 1 3)
+                         (current-cell 3 1)
+                         (current-cell 0 3)))
 
 (setf primitives '((if 3) (and 2) (or 2) (not 1)))
 
