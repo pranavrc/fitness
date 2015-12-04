@@ -153,10 +153,11 @@
               (father (tournament-selection fitness-alist program-count)))
           (crossover mother father))))
 
-(defun evolve (primitives actions conditionals args fargs fitness-function fitness-p &optional
-                          (max-tree-depth 5) (member-count 1000) (repeat-var 60)
+(defun evolve (primitives actions conditionals args fargs fitness-function fitness-p
+                          &optional
+                          (max-run-count 10) (max-tree-depth 5) (member-count 1000) (repeat-var 60)
                           (copy-percentage 10) (crossover-percentage 90) (program-count 7)
-                          &key (generation nil) (max-run-count 10))
+                          (generation nil))
   "Main function to run the evolution process.
 
   Mandatory arguments -
@@ -172,15 +173,13 @@
 
   Optional arguments -
 
+  max-run-count - Maximum number of evolutions to be run.
   max-tree-depth - Maximum depth of program trees generated. Default 5.
   member-count - Number of programs in each generation. Default 1000.
   repeat-var - Number of evaluations needed on each program. Default 60.
   copy-percentage - Percentage of programs to evolve by direct copying.
   crossover-percentage - Percentage of programs to evolve by crossing over.
-  program-count - Number of programs to be selected on each round of tournament selection.
-
-  Keyword arguments -
-  max-run-count - Maximum number of evolutions to be run."
+  program-count - Number of programs to be selected on each round of tournament selection."
   (let* ((population
            (if generation
              generation
@@ -191,10 +190,11 @@
       (if passes
         passes
         (evolve primitives actions conditionals args fargs fitness-function fitness-p
-                max-tree-depth member-count repeat-var percentage program-count
-                :generation
-                (append (copy-population population-fitness copy-percentage program-count)
-                        (crossover-population population-fitness crossover-percentage program-count))
-                :max-run-count (- max-run-count 1)))
+                (- max-run-count 1)
+                max-tree-depth member-count repeat-var
+                copy-percentage crossover-percentage program-count
+                (append
+                  (copy-population population-fitness copy-percentage program-count)
+                  (crossover-population population-fitness crossover-percentage program-count))))
       population-fitness)))
 
