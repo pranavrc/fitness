@@ -160,26 +160,26 @@
                      (se-sensor grid-world current-cell)
                      (sw-sensor grid-world current-cell)))
 
-;; Check if a cell in the grid world is a wall cell.
 (defun wall-cell-p (grid-world cell)
+  "Check if a cell in the grid world is a wall cell."
   (let ((dimensions (array-dimensions grid-world)))
     (or (= (car cell) 0)
         (= (cdr cell) 0)
         (= (car cell) (- (car dimensions) 1))
         (= (cdr cell) (- (cadr dimensions) 1)))))
 
-;; Check if in a single evaluation the cell has not already been visited.
 (defun new-cell-p (hashset cell)
+  "Check if in a single evaluation the cell has not already been visited."
   (not (gethash (write-to-string cell) hashset)))
 
-;; FItness predicate function that checks if a fitness has 'succeeded'.
 (defun fitness-p (fitness)
+  "Fitness predicate function that checks if a fitness has 'succeeded'."
   (let* ((dimensions dims)
          (wall-cells (+ (* 2 (car dimensions)) (* 2 (- (cadr dimensions) 2)))))
     (>= fitness (* wall-cells (length current-cell)))))
 
-;; Fitness function helper that takes results and checks them for the fitness.
 (defun fitness-helper (results)
+  "Fitness function helper that takes results and checks them for the fitness."
   (if (typep results 'list)
     (let ((hashset (make-hash-table :test 'equal)))
       (loop for result in results
@@ -192,7 +192,7 @@
             finally (return fitness)))
     0))
 
-;; Fitness function that maps the fitness helper across the results list.
 (defun fitness-function (results)
+  "Fitness function that maps the fitness helper across the results list."
   (apply #'+ (mapcar #'fitness-helper results)))
 
