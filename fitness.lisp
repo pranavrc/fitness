@@ -85,8 +85,8 @@
   "Pick a bunch of programs from a generation, choose the fittest
   one and return it. The number of programs picked can be modified
   with program-count."
-  (car (get-max-assoc (loop for r-count upto (- program-count 1) collect
-                            (pick-random fitness-alist)))))
+  (car (get-min-max (loop for r-count upto (- program-count 1) collect
+                          (pick-random fitness-alist)) #'> #'cdr)))
 
 (defun fair-coin (chance)
   "Fair coin toss whose probability of heads can be modified with
@@ -194,7 +194,7 @@
          (passes (remove-if-not #'(lambda (x) (fitness-p (cdr x))) population-fitness)))
     (if (> max-run-count 0)
       (if passes
-        passes
+        (get-max-assoc passes)
         (evolve primitives actions conditionals args fargs fitness-function fitness-p
                 (- max-run-count 1)
                 max-tree-depth member-count repeat-var
