@@ -75,12 +75,18 @@
             alist)
       m0)))
 
+(defun get-max-assoc (fitness-alist)
+  "Get key-value pair with max value in association list."
+  (loop for i in fitness-alist
+        maximizing (cdr i) into max
+        finally (return (rassoc max fitness-alist))))
+
 (defun tournament-selection (fitness-alist program-count)
   "Pick a bunch of programs from a generation, choose the fittest
   one and return it. The number of programs picked can be modified
   with program-count."
-  (car (get-min-max (loop for r-count upto (- program-count 1) collect
-                          (pick-random fitness-alist)) #'> #'cdr)))
+  (car (get-max-assoc (loop for r-count upto (- program-count 1) collect
+                            (pick-random fitness-alist)))))
 
 (defun fair-coin (chance)
   "Fair coin toss whose probability of heads can be modified with
